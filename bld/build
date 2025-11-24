@@ -1,0 +1,49 @@
+#!/bin/bash
+
+
+
+
+# -------- DEFINITIONS --------
+
+#exit on error
+set -e
+
+#current executable directory
+CXD=$(dirname $(readlink -f $0))
+pCXD=$(dirname $CXD)
+
+#paths
+OUT=$pCXD/out
+TMP=$OUT/tmp
+SRC=$pCXD/src
+OAPP=$OUT/app
+
+
+
+
+
+
+# -------- PREPARE ENVIRONMENT --------
+
+#clean
+$CXD/clean
+
+#remove previous generations
+rm --recursive --force $OAPP
+mkdir --parents        $OAPP
+if [[ ! -d $TMP ]]; then mkdir $TMP; fi
+
+
+
+
+
+
+# -------- EXECUTION --------
+
+#tmp dir
+cd $TMP
+
+#build
+gcc -c            $SRC/main.c     -fno-stack-protector
+as  -o syscalls.o $SRC/syscalls.S
+ld  -o $OAPP/tsh  main.o syscalls.o -z noexecstack
